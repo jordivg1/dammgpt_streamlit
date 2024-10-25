@@ -5,14 +5,18 @@ from azure.keyvault.secrets import SecretClient
 import os
 from streamlit_option_menu import option_menu
 from streamlit_chat import message
-azure_key_gpt = 'dammgpt'
+
+# Nombre del secreto en Azure Key Vault
+azure_key_gpt = 'dammgpt'  # Asegúrate de que este nombre coincide con el secreto en Key Vault
+
 # Función para obtener el secreto desde Azure Key Vault
 def get_secret(secret_name):
     try:
+        # Acceder al nombre del Key Vault desde los secretos de Streamlit
         key_vault_name = st.secrets["KEY_VAULT_NAME"]
         KVUri = f"https://{key_vault_name}.vault.azure.net"
 
-        # Autenticación usando ClientSecretCredential
+        # Autenticación usando ClientSecretCredential con los secretos de Streamlit
         credential = ClientSecretCredential(
             client_id=st.secrets["AZURE_CLIENT_ID"],
             client_secret=st.secrets["AZURE_CLIENT_SECRET"],
@@ -23,6 +27,9 @@ def get_secret(secret_name):
         # Obtener el secreto
         retrieved_secret = client.get_secret(secret_name)
         return retrieved_secret.value
+    except KeyError as e:
+        st.error(f"Clave faltante en los secretos: {e}")
+        return None
     except Exception as e:
         st.error(f"Error al obtener el secreto: {e}")
         return None
@@ -35,7 +42,7 @@ if not api_key:
 
 # Configuración de la API de Azure OpenAI
 openai.api_type = "azure"
-openai.api_base = "https://TU_ENDPOINT_OPENAI_AZURE.openai.azure.com/"
+openai.api_base = "https://TU_ENDPOINT_OPENAI_AZURE.openai.azure.com/"  # Reemplaza con tu endpoint real
 openai.api_version = "2023-03-15-preview"  # Verifica la versión actual de tu API
 openai.api_key = api_key
 
