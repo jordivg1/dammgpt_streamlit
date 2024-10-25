@@ -42,8 +42,8 @@ if not api_key:
 
 # Configuración de la API de Azure OpenAI
 openai.api_type = "azure"
-openai.api_base = "https://TU_ENDPOINT_OPENAI_AZURE.openai.azure.com/"  # Reemplaza con tu endpoint real
-openai.api_version = "2023-03-15-preview"  # Verifica la versión actual de tu API
+openai.api_base = "https://ai-gptdamm235320528959.openai.azure.com/"  # Reemplaza con tu endpoint real
+openai.api_version = "2023-12-01-preview"  # Verifica la versión actual de tu API
 openai.api_key = api_key
 
 # Aplicar estilos CSS personalizados (si tienes alguno)
@@ -85,7 +85,7 @@ choice = selected
 def obtener_respuesta(prompt):
     try:
         response = openai.Completion.create(
-            engine="nombre_de_tu_deployment",  # Reemplaza con el nombre de tu deployment en Azure
+            engine="gpt4onennisi",  # Reemplaza con el nombre de tu deployment en Azure
             prompt=prompt,
             max_tokens=150,
             n=1,
