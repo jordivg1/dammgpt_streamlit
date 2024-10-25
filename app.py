@@ -5,7 +5,7 @@ from azure.keyvault.secrets import SecretClient
 import os
 from streamlit_option_menu import option_menu
 from streamlit_chat import message
-
+azure_key_gpt = 'dammgpt'
 # Función para obtener el secreto desde Azure Key Vault
 def get_secret(secret_name):
     try:
@@ -28,7 +28,7 @@ def get_secret(secret_name):
         return None
 
 # Obtener la clave de API de Azure OpenAI desde Key Vault
-api_key = get_secret("AZURE_OPENAI_API_KEY")
+api_key = get_secret(azure_key_gpt)
 
 if not api_key:
     st.stop()
