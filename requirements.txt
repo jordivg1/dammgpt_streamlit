@@ -1,0 +1,7 @@
+streamlit
+openai
+azure-identity
+azure-keyvault-secrets
+python-dotenv
+streamlit-option-menu
+streamlit-chat
