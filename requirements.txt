@@ -2,6 +2,5 @@ streamlit
 openai
 azure-identity
 azure-keyvault-secrets
-azure-ai-openai
 streamlit-option-menu
 streamlit-chat
