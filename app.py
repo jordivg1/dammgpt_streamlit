@@ -1,12 +1,10 @@
 import streamlit as st
 import openai
+from openai import AzureOpenAI
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
-import os
 from streamlit_option_menu import option_menu
 from streamlit_chat import message
-
-azure_key_gpt = 'dammgpt'
 
 # Función para obtener el secreto desde Azure Key Vault
 def get_secret(secret_name):
@@ -14,31 +12,34 @@ def get_secret(secret_name):
         key_vault_name = st.secrets["KEY_VAULT_NAME"]
         KVUri = f"https://{key_vault_name}.vault.azure.net"
 
-        # Autenticación usando ClientSecretCredential
         credential = ClientSecretCredential(
             client_id=st.secrets["AZURE_CLIENT_ID"],
             client_secret=st.secrets["AZURE_CLIENT_SECRET"],
             tenant_id=st.secrets["AZURE_TENANT_ID"]
         )
         client = SecretClient(vault_url=KVUri, credential=credential)
-
-        # Obtener el secreto
         retrieved_secret = client.get_secret(secret_name)
         return retrieved_secret.value
+    except KeyError as e:
+        st.error(f"Clave faltante en los secretos: {e}")
+        return None
     except Exception as e:
         st.error(f"Error al obtener el secreto: {e}")
         return None
 
 # Obtener la clave de API de Azure OpenAI desde Key Vault
-api_key = get_secret(azure_key_gpt)
+api_key = get_secret('dammgpt')
 
 if not api_key:
     st.stop()
 
-# Configuración de la API de Azure OpenAI
+# Obtener el endpoint de Azure OpenAI desde los secretos
+azure_openai_endpoint = st.secrets["AZURE_OPENAI_ENDPOINT"]
+
+# Configurar la API de OpenAI para Azure
 openai.api_type = "azure"
-openai.api_base = "https://ai-gptdamm235320528959.openai.azure.com/"
-openai.api_version = "2023-03-15-preview"  # Verifica la versión actual de tu API
+openai.api_base = azure_openai_endpoint  # Asegúrate de que incluye 'https://'
+openai.api_version = "2023-12-01-preview"
 openai.api_key = api_key
 
 # Aplicar estilos CSS personalizados (si tienes alguno)
@@ -54,99 +55,106 @@ local_css("styles.css")  # Asegúrate de tener este archivo en tu repositorio
 # Título con banner deportivo
 st.markdown("""
     <div style="text-align: center; padding: 10px; background-color: #2c3e50;">
-        <h1 style="color:#ffffff;">🏅 Aplicación Deportiva con Chatbot 🏅</h1>
+        <h1 style="color:#ffffff;"> ReFill ReTrain ReJoin </h1>
     </div>
     """, unsafe_allow_html=True)
 
-# Barra lateral para la navegación con íconos usando streamlit-option-menu
-with st.sidebar:
-    selected = option_menu(
-        menu_title="Menú Principal",
-        options=["🏖 OCIO", "🛒 CONSUMO", "🤖 Chatbot"],
-        icons=["sun", "cart", "robot"],
-        menu_icon="cast",
-        default_index=0,
-        styles={
-            "container": {"padding": "5!important", "background-color": "#2c3e50"},
-            "icon": {"color": "#ffffff", "font-size": "20px"},
-            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#1abc9c"},
-            "nav-link-selected": {"background-color": "#1abc9c"},
-        }
-    )
+# Menú de navegación horizontal
+selected = option_menu(
+    menu_title=None,  # Ocultar el título del menú
+    options=["Leisure", "ReFill", "Chatbot"],
+    icons=["🏖", "🛒", "🤖"],
+    menu_icon="cast",
+    default_index=0,
+    orientation="horizontal",
+    styles={
+        "container": {"padding": "0!important", "background-color": "#2c3e50"},
+        "icon": {"color": "#ffffff", "font-size": "25px"},
+        "nav-link": {"font-size": "18px", "color": "#ffffff", "margin": "0px", "--hover-color": "#1abc9c"},
+        "nav-link-selected": {"background-color": "#1abc9c"},
+    }
+)
 
 choice = selected
 
-# Función para obtener la respuesta del modelo
-def obtener_respuesta(prompt):
+# Puedes agregar esta línea para depurar y ver el valor de 'choice'
+# st.write(f"Debug: choice is '{choice}'")
+
+# Función para obtener la respuesta del modelo usando Azure OpenAI
+def obtener_respuesta(messages, model='gpt4onennisi'):
+    cliente = AzureOpenAI(
+        azure_endpoint = st.secrets["AZURE_OPENAI_ENDPOINT"], 
+        api_key=api_key,  
+        api_version="2023-12-01-preview"
+    )
     try:
-        response = openai.Completion.create(
-            engine="gpt4onennisi",  # Reemplaza con el nombre de tu deployment en Azure
-            prompt=prompt,
+        respuesta = cliente.chat.completions.create(
+            model=model,
+            messages=messages,
             max_tokens=150,
-            n=1,
-            stop=None,
-            temperature=0.7,
+            tool_choice=None,
         )
-        respuesta = response.choices[0].text.strip()
+        respuesta = respuesta.choices[0].message.content  # Extraer el contenido del mensaje
         return respuesta
     except Exception as e:
-        return f"Error: {e}"
+        st.error(f"Error al obtener la respuesta: {e}")
+        print(f"Error detallado: {e}")  # Para registros adicionales
+        return "Lo siento, hubo un error al procesar tu solicitud."
 
 # Secciones de la aplicación
-if choice == "🏖 OCIO":
-    st.header("🏖 OCIO")
+if choice == "Leisure":
+    st.header("🏖 Leisure")
     
     # Usar columnas para una mejor disposición
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        st.image("ociosoporte.jpg", use_column_width=True)  # Asegúrate de tener esta imagen en tu repositorio
+        st.image("estrella-damm.jpg", use_column_width=True)
     with col2:
         st.write("""
-            ### Actividades de Ocio
+            ###
             - Deportes al aire libre
             - Gimnasio y fitness
             - Eventos deportivos
-            - Reuniones sociales
+            - Festivales / Música
+            - Cultura
+            - Barcelona
         """)
 
-elif choice == "🛒 CONSUMO":
-    st.header("🛒 CONSUMO")
+elif choice == "ReFill":
+    st.header("🛒 ReFill: Consulta los litros que quedan o faltan en tu subscripción")
     
     # Usar columnas para una mejor disposición
     col1, col2 = st.columns([2, 1])
     
     with col1:
         st.write("""
-            ### Tendencias de Consumo
-            - Equipamiento deportivo
-            - Ropa y accesorios
-            - Suplementos nutricionales
-            - Tecnología wearable
+            ### Te quedan 10 litros este mes
         """)
     with col2:
-        st.image("consumodeporte.jpg", use_column_width=True)  # Asegúrate de tener esta imagen en tu repositorio
+        st.image("agua.jpg", use_column_width=True)
 
-elif choice == "🤖 Chatbot":
-    st.header("🤖 Chatbot")
+elif choice == "Chatbot":
+    st.header("🤖 Coach GPT")
 
     # Crear una sesión para almacenar el historial del chat
     if 'historial' not in st.session_state:
         st.session_state['historial'] = []
 
-    # Mostrar el historial del chat usando streamlit-chat
-    for chat in st.session_state['historial']:
-        message(chat['input'], is_user=True)
-        message(chat['response'], is_user=False)
+    # Mostrar el historial del chat usando streamlit-chat con claves únicas
+    for i, chat in enumerate(st.session_state['historial']):
+        message(chat['input'], is_user=True, key=f"user_{i}")
+        message(chat['response'], is_user=False, key=f"bot_{i}")
 
     # Entrada del usuario
     usuario_input = st.text_input("Escribe tu mensaje:")
 
     if st.button("Enviar"):
         if usuario_input:
-            respuesta = obtener_respuesta(usuario_input)
+            messages = [{"role": "user", "content": usuario_input}]
+            respuesta = obtener_respuesta(messages)
             st.session_state['historial'].append({"input": usuario_input, "response": respuesta})
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.warning("Por favor, escribe un mensaje.")
 
