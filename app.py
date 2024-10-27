@@ -176,8 +176,8 @@ choice = selected
 # Función para obtener la respuesta del modelo usando Azure OpenAI
 def obtener_respuesta(messages, model='gpt4onennisi'):
     cliente = AzureOpenAI(
-        azure_endpoint = st.secrets["AZURE_OPENAI_ENDPOINT"], 
-        api_key=api_key,  
+        azure_endpoint=st.secrets["AZURE_OPENAI_ENDPOINT"],
+        api_key=api_key,
         api_version="2023-12-01-preview"
     )
     try:
@@ -199,13 +199,13 @@ def mostrar_login():
     st.subheader("Por favor, inicia sesión para acceder al chatbot.")
     username = st.text_input("Nombre de usuario")
     password = st.text_input("Contraseña", type="password")
-    user_saved = st.secrets["username"]
-    pass_saved = st.secrets["password"]
+    user_saved = st.secrets["credentials"]["username"]
+    pass_saved = st.secrets["credentials"]["password"]
     if st.button("Iniciar sesión"):
         if username == user_saved and password == pass_saved:
             st.session_state['logged_in'] = True
             st.success("¡Has iniciado sesión correctamente!")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Nombre de usuario o contraseña incorrectos.")
 
@@ -266,7 +266,7 @@ elif choice == "Chatbot":
                 messages = [{"role": "user", "content": usuario_input}]
                 respuesta = obtener_respuesta(messages)
                 st.session_state['historial'].append({"input": usuario_input, "response": respuesta})
-                st.experimental_rerun()
+                st.rerun()  # Reemplazado st.experimental_rerun() por st.rerun()
             else:
                 st.warning("Por favor, escribe un mensaje.")
 
@@ -274,7 +274,7 @@ elif choice == "Chatbot":
         if st.button("Cerrar sesión"):
             st.session_state['logged_in'] = False
             st.success("Has cerrado sesión.")
-            st.experimental_rerun()
+            st.rerun()  # Reemplazado st.experimental_rerun() por st.rerun()
 
 # Footer con estilo actualizado
 st.markdown("""
