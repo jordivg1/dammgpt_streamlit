@@ -199,8 +199,8 @@ def mostrar_login():
     st.subheader("Por favor, inicia sesión para acceder al chatbot.")
     username = st.text_input("Nombre de usuario")
     password = st.text_input("Contraseña", type="password")
-    user_saved = st.secrets["credentials"]["username"]
-    pass_saved = st.secrets["credentials"]["password"]
+    user_saved = st.secrets["username"]
+    pass_saved = st.secrets["password"]
     if st.button("Iniciar sesión"):
         if username == user_saved and password == pass_saved:
             st.session_state['logged_in'] = True
