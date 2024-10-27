@@ -42,43 +42,136 @@ openai.api_base = azure_openai_endpoint  # Asegúrate de que incluye 'https://'
 openai.api_version = "2023-12-01-preview"
 openai.api_key = api_key
 
-# Aplicar estilos CSS personalizados (si tienes alguno)
-def local_css(file_name):
-    try:
-        with open(file_name) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except FileNotFoundError:
-        st.warning("No se encontró el archivo de estilos CSS.")
+# Aplicar estilos CSS personalizados
+def local_css():
+    st.markdown("""
+        <style>
+            /* Importar fuente desde Google Fonts */
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
-local_css("styles.css")  # Asegúrate de tener este archivo en tu repositorio
+            /* Aplicar fuente a toda la aplicación */
+            html, body, [class*="css"]  {
+                font-family: 'Roboto', sans-serif;
+                background-color: #f5f5f5;
+            }
 
-# Título con banner deportivo
+            /* Estilos del título principal */
+            .main-title {
+                text-align: center;
+                padding: 20px 0;
+                background-color: #ffffff;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .main-title h1 {
+                color: #333333;
+                font-weight: 700;
+            }
+
+            /* Estilos del menú de navegación */
+            .css-1n543e5 {
+                background-color: #ffffff !important;
+                padding: 0;
+                margin-bottom: 20px;
+            }
+            .nav-link {
+                font-size: 16px !important;
+                color: #333333 !important;
+                padding: 10px 20px !important;
+                margin: 0 5px !important;
+                border-radius: 5px;
+            }
+            .nav-link:hover {
+                background-color: #e0e0e0 !important;
+                color: #333333 !important;
+            }
+            .nav-link-selected {
+                background-color: #1abc9c !important;
+                color: #ffffff !important;
+            }
+
+            /* Estilos de los encabezados de sección */
+            .stMarkdown h2 {
+                color: #333333;
+                font-weight: 500;
+                margin-top: 0;
+            }
+
+            /* Estilos del contenido */
+            .stContainer {
+                background-color: #ffffff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            /* Estilos de imágenes */
+            img {
+                border-radius: 8px;
+            }
+
+            /* Estilos del chat */
+            .streamlit-chat-message {
+                background-color: #f9f9f9;
+                border-radius: 8px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            .streamlit-chat-message-user {
+                background-color: #1abc9c;
+                color: #ffffff;
+            }
+
+            /* Estilos de botones */
+            .stButton > button {
+                background-color: #1abc9c;
+                color: #ffffff;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+            .stButton > button:hover {
+                background-color: #17a085;
+                color: #ffffff;
+            }
+
+            /* Estilos del footer */
+            .footer {
+                text-align: center;
+                padding: 10px 0;
+                color: #999999;
+                font-size: 14px;
+                margin-top: 40px;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
+local_css()
+
+# Título con estilo actualizado
 st.markdown("""
-    <div style="text-align: center; padding: 10px; background-color: #2c3e50;">
-        <h1 style="color:#ffffff;"> ReFill ReTrain ReJoin </h1>
+    <div class="main-title">
+        <h1>ReFill ReTrain ReJoin</h1>
     </div>
     """, unsafe_allow_html=True)
 
 # Menú de navegación horizontal
 selected = option_menu(
-    menu_title=None,  # Ocultar el título del menú
+    menu_title=None,
     options=["Leisure", "ReFill", "Chatbot"],
-    icons=["🏖", "🛒", "🤖"],
+    icons=["sun", "droplet", "robot"],
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
     styles={
-        "container": {"padding": "0!important", "background-color": "#2c3e50"},
-        "icon": {"color": "#ffffff", "font-size": "25px"},
-        "nav-link": {"font-size": "18px", "color": "#ffffff", "margin": "0px", "--hover-color": "#1abc9c"},
+        "container": {"padding": "0!important"},
+        "nav-link": {"--hover-color": "#e0e0e0"},
         "nav-link-selected": {"background-color": "#1abc9c"},
     }
 )
 
 choice = selected
-
-# Puedes agregar esta línea para depurar y ver el valor de 'choice'
-# st.write(f"Debug: choice is '{choice}'")
 
 # Función para obtener la respuesta del modelo usando Azure OpenAI
 def obtener_respuesta(messages, model='gpt4onennisi'):
@@ -101,66 +194,89 @@ def obtener_respuesta(messages, model='gpt4onennisi'):
         print(f"Error detallado: {e}")  # Para registros adicionales
         return "Lo siento, hubo un error al procesar tu solicitud."
 
+# Función para mostrar el formulario de login
+def mostrar_login():
+    st.subheader("Por favor, inicia sesión para acceder al chatbot.")
+    username = st.text_input("Nombre de usuario")
+    password = st.text_input("Contraseña", type="password")
+    if st.button("Iniciar sesión"):
+        if username == "isdi1" and password == "isdi1_password":
+            st.session_state['logged_in'] = True
+            st.success("¡Has iniciado sesión correctamente!")
+            st.experimental_rerun()
+        else:
+            st.error("Nombre de usuario o contraseña incorrectos.")
+
 # Secciones de la aplicación
 if choice == "Leisure":
-    st.header("🏖 Leisure")
+    st.header("Actividades de Ocio")
     
     # Usar columnas para una mejor disposición
-    col1, col2 = st.columns([1, 2])
+    col1, col2 = st.columns(2)
     
     with col1:
         st.image("estrella-damm.jpg", use_column_width=True)
     with col2:
-        st.write("""
-            ###
-            - Deportes al aire libre
-            - Gimnasio y fitness
-            - Eventos deportivos
-            - Festivales / Música
-            - Cultura
-            - Barcelona
+        st.markdown("""
+            - **Deportes al aire libre**
+            - **Gimnasio y fitness**
+            - **Eventos deportivos**
+            - **Festivales / Música**
+            - **Cultura**
+            - **Barcelona**
         """)
 
 elif choice == "ReFill":
-    st.header("🛒 ReFill: Consulta los litros que quedan o faltan en tu subscripción")
+    st.header("Consulta los litros que quedan o faltan en tu suscripción")
     
     # Usar columnas para una mejor disposición
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.write("""
-            ### Te quedan 10 litros este mes
+        st.markdown("""
+            ### Te quedan **10 litros** este mes
+            ¿Necesitas más? Renueva tu suscripción para disfrutar de más beneficios.
         """)
     with col2:
         st.image("agua.jpg", use_column_width=True)
 
 elif choice == "Chatbot":
-    st.header("🤖 Coach GPT")
+    st.header("Coach GPT")
+    
+    # Verificar si el usuario ha iniciado sesión
+    if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
+        mostrar_login()
+    else:
+        # Crear una sesión para almacenar el historial del chat
+        if 'historial' not in st.session_state:
+            st.session_state['historial'] = []
 
-    # Crear una sesión para almacenar el historial del chat
-    if 'historial' not in st.session_state:
-        st.session_state['historial'] = []
+        # Mostrar el historial del chat
+        for i, chat in enumerate(st.session_state['historial']):
+            message(chat['input'], is_user=True, key=f"user_{i}")
+            message(chat['response'], is_user=False, key=f"bot_{i}")
 
-    # Mostrar el historial del chat usando streamlit-chat con claves únicas
-    for i, chat in enumerate(st.session_state['historial']):
-        message(chat['input'], is_user=True, key=f"user_{i}")
-        message(chat['response'], is_user=False, key=f"bot_{i}")
+        # Entrada del usuario
+        usuario_input = st.text_input("Escribe tu mensaje:", key="input")
 
-    # Entrada del usuario
-    usuario_input = st.text_input("Escribe tu mensaje:")
+        if st.button("Enviar"):
+            if usuario_input:
+                messages = [{"role": "user", "content": usuario_input}]
+                respuesta = obtener_respuesta(messages)
+                st.session_state['historial'].append({"input": usuario_input, "response": respuesta})
+                st.experimental_rerun()
+            else:
+                st.warning("Por favor, escribe un mensaje.")
 
-    if st.button("Enviar"):
-        if usuario_input:
-            messages = [{"role": "user", "content": usuario_input}]
-            respuesta = obtener_respuesta(messages)
-            st.session_state['historial'].append({"input": usuario_input, "response": respuesta})
-            st.rerun()
-        else:
-            st.warning("Por favor, escribe un mensaje.")
+        # Botón para cerrar sesión
+        if st.button("Cerrar sesión"):
+            st.session_state['logged_in'] = False
+            st.success("Has cerrado sesión.")
+            st.experimental_rerun()
 
-# Footer
+# Footer con estilo actualizado
 st.markdown("""
-    <div style="position: fixed; bottom: 0; width: 100%; background-color: #2c3e50; color: #ecf0f1; text-align: center; padding: 10px;">
-        <p>© 2024 Tu Nombre. Todos los derechos reservados.</p>
+    <div class="footer">
+        © 2024 Tu Nombre. Todos los derechos reservados.
     </div>
     """, unsafe_allow_html=True)
