@@ -5,6 +5,9 @@ from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
 from streamlit_option_menu import option_menu
 from streamlit_chat import message
+import plotly.express as px  # Importar Plotly Express
+import pandas as pd
+import numpy as np
 
 # Función para obtener el secreto desde Azure Key Vault
 def get_secret(secret_name):
@@ -159,8 +162,8 @@ st.markdown("""
 # Menú de navegación horizontal
 selected = option_menu(
     menu_title=None,
-    options=["Leisure", "ReFill", "Chatbot"],
-    icons=["sun", "droplet", "robot"],
+    options=["Leisure", "ReFill", "Chatbot", "Análisis"],  # Añadimos "Análisis" al menú
+    icons=["sun", "droplet", "robot", "bar-chart"],  # Icono para "Análisis"
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
@@ -199,8 +202,8 @@ def mostrar_login():
     st.subheader("Por favor, inicia sesión para acceder al chatbot.")
     username = st.text_input("Nombre de usuario")
     password = st.text_input("Contraseña", type="password")
-    user_saved = st.secrets["username"]
-    pass_saved = st.secrets["password"]
+    user_saved = st.secrets["credentials"]["username"]
+    pass_saved = st.secrets["credentials"]["password"]
     if st.button("Iniciar sesión"):
         if username == user_saved and password == pass_saved:
             st.session_state['logged_in'] = True
@@ -266,7 +269,7 @@ elif choice == "Chatbot":
                 messages = [{"role": "user", "content": usuario_input}]
                 respuesta = obtener_respuesta(messages)
                 st.session_state['historial'].append({"input": usuario_input, "response": respuesta})
-                st.rerun()  # Reemplazado st.experimental_rerun() por st.rerun()
+                st.rerun()
             else:
                 st.warning("Por favor, escribe un mensaje.")
 
@@ -274,7 +277,38 @@ elif choice == "Chatbot":
         if st.button("Cerrar sesión"):
             st.session_state['logged_in'] = False
             st.success("Has cerrado sesión.")
-            st.rerun()  # Reemplazado st.experimental_rerun() por st.rerun()
+            st.rerun()
+
+elif choice == "Análisis":
+    st.header("Análisis de Entrenamiento Deportivo")
+    
+    # Generar datos de muestra
+    fechas = pd.date_range(start='2023-01-01', periods=10, freq='D')
+    calorias = np.random.randint(400, 800, size=10)
+    max_hr = np.random.randint(150, 190, size=10)
+    zonas_entrenamiento = np.random.randint(1, 5, size=10)
+    
+    df = pd.DataFrame({
+        'Fecha': fechas,
+        'Calorías': calorias,
+        'Frecuencia Cardíaca Máxima': max_hr,
+        'Zona de Entrenamiento': zonas_entrenamiento
+    })
+    
+    # Gráfico de barras de calorías
+    fig_calorias = px.bar(df, x='Fecha', y='Calorías', title='Calorías Quemadas por Día')
+    st.plotly_chart(fig_calorias, use_container_width=True)
+    
+    # Gráfico de líneas de frecuencia cardíaca máxima
+    fig_hr = px.line(df, x='Fecha', y='Frecuencia Cardíaca Máxima', markers=True, title='Frecuencia Cardíaca Máxima por Día')
+    st.plotly_chart(fig_hr, use_container_width=True)
+    
+    # Gráfico de áreas apiladas de zonas de entrenamiento
+    df_zonas = df.groupby('Zona de Entrenamiento').size().reset_index(name='Conteo')
+    fig_zonas = px.pie(df_zonas, values='Conteo', names='Zona de Entrenamiento', title='Distribución de Zonas de Entrenamiento')
+    st.plotly_chart(fig_zonas, use_container_width=True)
+    
+    # Puedes agregar más gráficos si lo deseas
 
 # Footer con estilo actualizado
 st.markdown("""
