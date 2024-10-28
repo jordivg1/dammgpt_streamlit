@@ -162,8 +162,8 @@ st.markdown("""
 # Menú de navegación horizontal
 selected = option_menu(
     menu_title=None,
-    options=["Leisure", "ReFill", "Chatbot", "Análisis"],  # Añadimos "Análisis" al menú
-    icons=["sun", "droplet", "robot", "bar-chart"],  # Icono para "Análisis"
+    options=["Leisure", "ReFill", "Chatbot", "Análisis"],  # Mantén "Análisis" si lo deseas
+    icons=["sun", "droplet", "robot", "bar-chart"],
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
@@ -202,8 +202,8 @@ def mostrar_login():
     st.subheader("Por favor, inicia sesión para acceder al chatbot.")
     username = st.text_input("Nombre de usuario")
     password = st.text_input("Contraseña", type="password")
-    user_saved = st.secrets["username"]
-    pass_saved = st.secrets["password"]
+    user_saved = st.secrets["credentials"]["username"]
+    pass_saved = st.secrets["credentials"]["password"]
     if st.button("Iniciar sesión"):
         if username == user_saved and password == pass_saved:
             st.session_state['logged_in'] = True
@@ -242,6 +242,29 @@ elif choice == "ReFill":
             ### Te quedan **10 litros** este mes
             ¿Necesitas más? Renueva tu suscripción para disfrutar de más beneficios.
         """)
+        
+        # Generar datos de muestra para el consumo
+        fechas = pd.date_range(start='2023-01-01', periods=10, freq='D')
+        consumo_isotonica = np.random.randint(1, 5, size=10)  # Litros consumidos por día
+        consumo_proteica = np.random.randint(0, 3, size=10)
+        
+        df_consumo = pd.DataFrame({
+            'Fecha': fechas,
+            'Agua Isotónica': consumo_isotonica,
+            'Agua Proteica': consumo_proteica
+        })
+        
+        # Gráfico de barras apiladas para mostrar el consumo
+        df_consumo_melted = df_consumo.melt(id_vars='Fecha', value_vars=['Agua Isotónica', 'Agua Proteica'], var_name='Producto', value_name='Litros')
+        fig_consumo = px.bar(df_consumo_melted, x='Fecha', y='Litros', color='Producto', title='Consumo de Productos por Día')
+        st.plotly_chart(fig_consumo, use_container_width=True)
+        
+        # Gráfico circular para mostrar la distribución total del consumo
+        total_consumo = df_consumo[['Agua Isotónica', 'Agua Proteica']].sum().reset_index()
+        total_consumo.columns = ['Producto', 'Litros']
+        fig_pie = px.pie(total_consumo, values='Litros', names='Producto', title='Distribución Total del Consumo')
+        st.plotly_chart(fig_pie, use_container_width=True)
+    
     with col2:
         st.image("agua.jpg", use_column_width=True)
 
@@ -303,7 +326,7 @@ elif choice == "Análisis":
     fig_hr = px.line(df, x='Fecha', y='Frecuencia Cardíaca Máxima', markers=True, title='Frecuencia Cardíaca Máxima por Día')
     st.plotly_chart(fig_hr, use_container_width=True)
     
-    # Gráfico de áreas apiladas de zonas de entrenamiento
+    # Gráfico de pastel de zonas de entrenamiento
     df_zonas = df.groupby('Zona de Entrenamiento').size().reset_index(name='Conteo')
     fig_zonas = px.pie(df_zonas, values='Conteo', names='Zona de Entrenamiento', title='Distribución de Zonas de Entrenamiento')
     st.plotly_chart(fig_zonas, use_container_width=True)
