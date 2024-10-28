@@ -266,7 +266,7 @@ elif choice == "ReFill":
         st.plotly_chart(fig_pie, use_container_width=True)
     
     with col2:
-        st.image("agua.jpg", use_column_width=True)
+        st.image("fake_qr.jpg", use_column_width=True)
 
 elif choice == "Chatbot":
     st.header("Coach GPT")
