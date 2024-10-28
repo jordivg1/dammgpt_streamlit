@@ -187,7 +187,7 @@ def obtener_respuesta(messages, model='gpt4onennisi'):
         respuesta = cliente.chat.completions.create(
             model=model,
             messages=messages,
-            max_tokens=150,
+            max_tokens=300,
             tool_choice=None,
         )
         respuesta = respuesta.choices[0].message.content  # Extraer el contenido del mensaje
