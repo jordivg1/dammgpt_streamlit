@@ -227,7 +227,8 @@ def consultar_tablas(visitas=False, censo=False, ventas=False,
         ).select("ESTABLECIMIENTO", "EVENT_SUBJECT").limit(10)
 
         establecimientos_visitas = [row["ESTABLECIMIENTO"] for row in visitas_filtradas.collect()]
-        print("lista" + establecimientos_visitas)
+        print("lista:" )
+        print(establecimientos_visitas)
         # Convertir resultados de visitas a texto
         visitas_resultado = "\n".join([f"Establecimiento: {row['ESTABLECIMIENTO']}, Nombre: {row['EVENT_SUBJECT']}" for row in visitas_filtradas.collect()])
         resultados.append("Visitas:\n" + visitas_resultado)
