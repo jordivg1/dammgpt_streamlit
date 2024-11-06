@@ -4,4 +4,6 @@ azure-identity
 azure-keyvault-secrets
 streamlit-option-menu
 streamlit-chat
-plotly 
+plotly
+databricks-connect==15.4.2
+pyspark==3.5.3
