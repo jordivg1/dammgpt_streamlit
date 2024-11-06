@@ -5,5 +5,5 @@ azure-keyvault-secrets
 streamlit-option-menu
 streamlit-chat
 plotly
-databricks-connect==15.4.2
+databricks-connect
 pyspark==3.5.3
