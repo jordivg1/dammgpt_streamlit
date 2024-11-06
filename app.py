@@ -243,14 +243,23 @@ def consultar_tablas(visitas=False, censo=False, ventas=False,
         censo_filtrado = censo_df.filter(
             (F.col("ESTABLECIMIENTO").isin(establecimientos_combined)) &  # Filtrar solo establecimientos combinados
             ((F.col("ENVASE") == envase) if envase else True) &  # Solo filtra por envase si se especifica
-            (F.col("CANAL") == canal)  # Solo establecimientos del canal especificado
+            ((F.col("CANAL") == canal) if envase else True)  # Solo establecimientos del canal especificado
         ).select("VOLUMENANUAL", "MARCANAME", "ENVASE", "ESTABLECIMIENTO", "CANAL")
 
-        # Convertir resultados de censo a texto
-        censo_resultado = "\n".join([
-            f"Establecimiento: {row['ESTABLECIMIENTO']}, Marca: {row['MARCANAME']}, Envase: {row['ENVASE']}, Volumen Anual: {row['VOLUMENANUAL']}"
-            for row in censo_filtrado.collect()
-        ])
+        # Recoger los resultados del censo
+        censo_coleccion = censo_filtrado.collect()
+
+        # Verificar si hay resultados
+        if censo_coleccion:
+            # Convertir resultados de censo a texto
+            censo_resultado = "\n".join([
+                f"Establecimiento: {row['ESTABLECIMIENTO']}, Marca: {row['MARCANAME']}, Envase: {row['ENVASE']}, Volumen Anual: {row['VOLUMENANUAL']}"
+                for row in censo_coleccion
+            ])
+        else:
+            # Mensaje en caso de que no se encuentren resultados
+            censo_resultado = "No se ha encontrado censo."
+
         resultados.append("Censo:\n" + censo_resultado)
         print("Censo:\n" + censo_resultado)
 
