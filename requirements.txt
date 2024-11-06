@@ -1,10 +1,10 @@
-streamlit
+streamlit==1.39.0
 openai
 azure-identity
 azure-keyvault-secrets
 streamlit-option-menu
 streamlit-chat
 plotly
-databricks-connect
-pyspark
-databricks-sdk
+databricks-connect==15.4.2
+pyspark==3.5.3
+databricks-sdk==0.36.0
