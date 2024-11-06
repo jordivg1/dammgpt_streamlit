@@ -231,7 +231,8 @@ def consultar_tablas(visitas=False, censo=False, ventas=False,
         # Convertir resultados de visitas a texto
         visitas_resultado = "\n".join([f"Establecimiento: {row['ESTABLECIMIENTO']}, Nombre: {row['EVENT_SUBJECT']}" for row in visitas_filtradas.collect()])
         resultados.append("Visitas:\n" + visitas_resultado)
-        print("Visitas:\n" + visitas_resultado)
+        print("Visitas:\n" )
+        print(visitas_resultado)
 
     # Combinamos los establecimientos de visitas con los proporcionados para el censo
     establecimientos_combined = list(set(establecimientos_visitas + (establecimientos_censo or [])))
